@@ -126,6 +126,12 @@ print(df)
 
 df.to_csv("modified_employees.csv", index=False)
 
+from google.colab import files
+uploaded = files.upload()
+df = pd.read_csv('Iris.csv')
+print(df.head())
+
+
 
 
 
