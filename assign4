@@ -1,0 +1,118 @@
+
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+base_url = "https://books.toscrape.com/catalogue/page-{}.html"
+
+books_data = []
+
+for page in range(1, 51):
+    url = base_url.format(page)
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+   
+    books = soup.find_all('article', class_='product_pod')
+
+    for book in books:
+        title = book.h3.a['title']
+        price = book.find('p', class_='price_color').text.strip()
+        availability = book.find('p', class_='instock availability').text.strip()
+        star_rating = book.p['class'][1]  # e.g., 'One', 'Two', etc.
+
+        books_data.append({
+            'Title': title,
+            'Price': price,
+            'Availability': availability,
+            'Star Rating': star_rating
+        })
+
+df_books = pd.DataFrame(books_data)
+df_books.to_csv('books.csv', index=False)
+
+print(f" {len(df_books)} books and saved to books.csv")
+
+
+
+
+
+
+from selenium import webdriver
+from bs4 import BeautifulSoup
+import pandas as pd
+import time
+
+
+
+url = "https://www.imdb.com/chart/top/"
+driver.get(url)
+
+
+soup = BeautifulSoup(driver.page_source, 'html.parser')
+driver.quit()
+
+movies_data = []
+
+movies = soup.select('li.ipc-metadata-list-summary-item')
+
+for rank, movie in enumerate(movies, start=1):
+    title_tag = movie.select_one('h3')
+    title = title_tag.get_text(strip=True) if title_tag else None
+
+    year_tag = movie.select_one('span.ipc-title__meta-year')
+    year = year_tag.get_text(strip=True) if year_tag else None
+
+    rating_tag = movie.select_one('span.ipc-rating-star')
+    rating = rating_tag.get_text(strip=True) if rating_tag else None
+
+    movies_data.append({
+        'Rank': rank,
+        'Movie Title': title,
+        'Year of Release': year,
+        'IMDB Rating': rating
+    })
+
+df_movies = pd.DataFrame(movies_data)
+df_movies.to_csv('imdb_top250.csv', index=False)
+
+print(f" {len(df_movies)} movies and saved to imdb_top250.csv")
+
+
+
+
+
+
+
+
+
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+url = "https://www.timeanddate.com/weather/"
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+weather_data = []
+
+table = soup.find('table', class_='zebra tb-wt fw va-m tb-hover')
+rows = table.find_all('tr')
+
+for row in rows[1:]:  
+    cols = row.find_all('td')
+    if len(cols) >= 3:
+        city = cols[0].text.strip()
+        temperature = cols[1].text.strip()
+        condition = cols[2].text.strip()
+        weather_data.append({
+            'City Name': city,
+            'Temperature': temperature,
+            'Weather Condition': condition
+        })
+
+df_weather = pd.DataFrame(weather_data)
+df_weather.to_csv('weather.csv', index=False)
+
+print(f" {len(df_weather)} cities' weather and saved to weather.csv")
+
